@@ -5,6 +5,7 @@ import cn.itcast.hotel.pojo.Hotel;
 import cn.itcast.hotel.pojo.HotelDoc;
 import cn.itcast.hotel.pojo.PageResult;
 import cn.itcast.hotel.pojo.RequestParams;
+import cn.itcast.hotel.service.IHotelSearchService;
 import cn.itcast.hotel.service.IHotelService;
 import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -28,6 +29,7 @@ import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
 import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortBuilders;
 import org.elasticsearch.search.sort.SortOrder;
@@ -51,9 +53,14 @@ public class HotelService extends ServiceImpl<HotelMapper, Hotel> implements IHo
     @Autowired
     private RestHighLevelClient restHighLevelClient;
 
+    @Autowired
+    private IHotelSearchService hotelSearchService;
+
     @Override
     public PageResult search(RequestParams params) {
         try {
+            // 0.异步调用保存用户搜索记录
+            hotelSearchService.insert(params.getKey(),1);
             // 1.准备Request
             SearchRequest request = new SearchRequest("hotel");
             // 2.准备请求参数
@@ -72,6 +79,8 @@ public class HotelService extends ServiceImpl<HotelMapper, Hotel> implements IHo
                         .unit(DistanceUnit.KILOMETERS)
                 );
             }
+            // 2.4.搜索结果高亮
+            request.source().highlighter(new HighlightBuilder().field("name").requireFieldMatch(false));
             // 3.发送请求
             SearchResponse response = restHighLevelClient.search(request, RequestOptions.DEFAULT);
             // 4.解析响应

@@ -12,6 +12,15 @@ spring:
     username: hotel
     password: 123321
     virtual-host: /hotel
+  data:
+    mongodb:
+      #      uri: mongodb://root:root123@192.168.150.101:27017/leadnews-history
+      host: 192.168.150.101
+      port: 27017
+      authentication-database: admin
+      username: root
+      password: root123
+      database: hotel-history
 logging:
   level:
     cn.itcast: debug
