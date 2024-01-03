@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -21,6 +22,7 @@ public class HotelSearchServiceImpl implements IHotelSearchService {
 
     @Autowired
     MongoTemplate mongoTemplate;
+
     /**
      * 保存用户搜索历史记录
      *
@@ -30,14 +32,14 @@ public class HotelSearchServiceImpl implements IHotelSearchService {
     @Override
     @Async
     public void insert(String keyword, Integer userId) {
-        if (StringUtils.isEmpty(keyword)){
+        if (StringUtils.isEmpty(keyword)) {
             return;
         }
         //查询当前用户的搜索关键词
         Query query = Query.query(Criteria.where("userId").is(userId).and("keyword").is(keyword));
         ApUserSearch apUserSearch = mongoTemplate.findOne(query, ApUserSearch.class);
         //存在 更新创建时间
-        if (apUserSearch!=null){
+        if (apUserSearch != null) {
             apUserSearch.setCreatedTime(new Date());
             mongoTemplate.save(apUserSearch);
             return;
@@ -51,14 +53,39 @@ public class HotelSearchServiceImpl implements IHotelSearchService {
         //直接替换最后一个记录
         List<ApUserSearch> apUserSearches = mongoTemplate.find(
                 Query.query(Criteria.where("userId").is(userId))
-                        .with(Sort.by(Sort.Direction.DESC,"createTime")),
+                        .with(Sort.by(Sort.Direction.DESC, "createTime")),
                 ApUserSearch.class);
-        if (apUserSearches==null||apUserSearches.size()<10){
+        if (apUserSearches == null || apUserSearches.size() < 10) {
             mongoTemplate.save(apUserSearch);
-        }else {
+        } else {
             ApUserSearch apUserSearchLast = apUserSearches.get(apUserSearches.size() - 1);
-            mongoTemplate.findAndReplace(Query.query(Criteria.where("id").is(apUserSearchLast.getId())),apUserSearch);
+            mongoTemplate.findAndReplace(Query.query(Criteria.where("id").is(apUserSearchLast.getId())), apUserSearch);
         }
 
     }
+
+    @Override
+    public List<ApUserSearch> getHistory() {
+        //获取当前用户
+        Integer userId = 1;
+
+        //根据用户查询搜索历史记录，根据时间倒叙查询
+        List<ApUserSearch> apUserSearches = mongoTemplate.find(Query
+                        .query(Criteria.where("userId").is(userId))
+                        .with(Sort.by(Sort.Direction.DESC, "createTime")),
+                ApUserSearch.class);
+        return apUserSearches;
+    }
+
+    @Override
+    public void delHistory(String id) {
+        //检测参数
+
+        //检测是否的登录
+
+        //删除
+        mongoTemplate.remove(Query.query(Criteria.where("id").is(id)), ApUserSearch.class);
+    }
+
+
 }

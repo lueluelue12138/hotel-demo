@@ -1,5 +1,9 @@
 package cn.itcast.hotel.service;
 
+import cn.itcast.hotel.pojo.ApUserSearch;
+
+import java.util.List;
+
 public interface IHotelSearchService {
 
     /**
@@ -8,4 +12,10 @@ public interface IHotelSearchService {
      * @param userId
      */
     public void insert(String keyword,Integer userId);
+
+    List<ApUserSearch> getHistory();
+
+
+    void delHistory(String id);
+
 }
