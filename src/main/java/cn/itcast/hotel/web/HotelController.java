@@ -1,5 +1,6 @@
 package cn.itcast.hotel.web;
 
+import cn.itcast.hotel.pojo.ApAssociateWords;
 import cn.itcast.hotel.pojo.ApUserSearch;
 import cn.itcast.hotel.pojo.PageResult;
 import cn.itcast.hotel.pojo.RequestParams;
@@ -41,6 +42,11 @@ public class HotelController {
     @PostMapping("delHistory")
     public void delHistory(String id)  {
         hotelSearchService.delHistory(id);
+    }
+
+    @PostMapping("associate")
+    public List<ApAssociateWords> associate(String keyword)  {
+        return hotelSearchService.associate(keyword);
     }
 
     @GetMapping("suggestion")

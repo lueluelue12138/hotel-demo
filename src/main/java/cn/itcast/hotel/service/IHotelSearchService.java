@@ -1,5 +1,6 @@
 package cn.itcast.hotel.service;
 
+import cn.itcast.hotel.pojo.ApAssociateWords;
 import cn.itcast.hotel.pojo.ApUserSearch;
 
 import java.util.List;
@@ -17,5 +18,7 @@ public interface IHotelSearchService {
 
 
     void delHistory(String id);
+
+    List<ApAssociateWords> associate(String keyword);
 
 }

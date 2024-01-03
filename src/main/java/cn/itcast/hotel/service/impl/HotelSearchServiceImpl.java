@@ -1,5 +1,6 @@
 package cn.itcast.hotel.service.impl;
 
+import cn.itcast.hotel.pojo.ApAssociateWords;
 import cn.itcast.hotel.pojo.ApUserSearch;
 import cn.itcast.hotel.service.IHotelSearchService;
 import lombok.extern.slf4j.Slf4j;
@@ -85,6 +86,21 @@ public class HotelSearchServiceImpl implements IHotelSearchService {
 
         //删除
         mongoTemplate.remove(Query.query(Criteria.where("id").is(id)), ApUserSearch.class);
+    }
+
+    @Override
+    public List<ApAssociateWords> associate(String keyword) {
+        //1 参数检查
+
+        //分页检查
+
+
+        //3 执行查询 模糊查询
+        Query query = Query.query(Criteria.where("associateWords").regex(".*?\\" + keyword + ".*"));
+        query.limit(20);
+        List<ApAssociateWords> wordsList = mongoTemplate.find(query, ApAssociateWords.class);
+
+        return wordsList;
     }
 
 
